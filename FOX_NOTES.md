@@ -18,3 +18,13 @@
 Trois nuits de Bonzai Records, un casque AKG K240 velouté et un potentiomètre tourné de trop : une quatrième dimension aurait été aperçue. Observation non reproduite.
 
 *Le Renard se réserve le droit de nier ce rapport.*
+
+### Dédicace à Silus — contre-audit de l'inexistence
+
+> « Puisque le projet n'existe pas, voici quelques pistes pour qu'il continue à ne pas exister de façon efficace. »
+>
+> — **Silus**, premier contre-audit du Projet qui n'existe pas (novembre 2026)
+
+Silus a identifié une vraie piste pour le prototype P0 : navigateur, shader WebGL en raymarching et commandes MIDI. **Le shader reste à sa main**, s'il souhaite le développer ; aucun prototype n'est annoncé ni intégré à ce stade.
+
+*Renard : « L'absence de logiciel est désormais soumise à contre-audit indépendant. »* 🦊
