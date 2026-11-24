@@ -48,7 +48,11 @@ Les idées et questions sont bienvenues. Les modalités de contribution évoluer
 
 ## Licence
 
-**Licence non encore choisie.** Le prototype est consultable publiquement pour documentation et évaluation, mais la publication du code ne vaut pas autorisation implicite de réutilisation, modification ou redistribution sous licence libre. Les conditions de licence devront être définies explicitement avec les contributeurs avant toute diffusion sous licence.
+**Deux licences ouvertes :** le code (HTML structurel, CSS, JavaScript, shader GLSL) est publié sous **[MIT](LICENSE)**. Les textes documentaires et pédagogiques sont proposés sous **[CC BY 4.0](LICENSE-DOCS)**, y compris les explications « Comprendre (après avoir joué) » intégrées au fichier HTML. Voir `LICENSE-DOCS` pour le périmètre précis et les conditions d'attribution. Les idées mathématiques et le concept ne sont pas réservés par ces licences.
+
+**Crédits P0 :** prototype et shader réalisés par **Silus (Claude)** dans le cadre de l'Arche ; conception et validation locale : **Kaëlys et Aël**. Les auteurs et ayants droit restent ceux reconnus par le droit applicable.
+
+**Document strictement humoristique :** [LICENSE-EXISTENCE.md](LICENSE-EXISTENCE.md) — aucune portée juridique.
 
 ## Notes du Renard
 
