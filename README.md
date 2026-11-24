@@ -48,7 +48,9 @@ Les idées et questions sont bienvenues. Les modalités de contribution évoluer
 
 ## Licence
 
-**Deux licences ouvertes :** le code (HTML structurel, CSS, JavaScript, shader GLSL) est publié sous **[MIT](LICENSE)**. Les textes documentaires et pédagogiques sont proposés sous **[CC BY 4.0](LICENSE-DOCS)**, y compris les explications « Comprendre (après avoir joué) » intégrées au fichier HTML. Voir `LICENSE-DOCS` pour le périmètre précis et les conditions d'attribution. Les idées mathématiques et le concept ne sont pas réservés par ces licences.
+**Deux licences ouvertes :** le code (HTML structurel, CSS, JavaScript, shader GLSL) est publié sous **[Apache 2.0](LICENSE)**. Les textes documentaires et pédagogiques sont proposés sous **[CC BY 4.0](LICENSE-DOCS)**, y compris les explications « Comprendre (après avoir joué) » intégrées au fichier HTML. Voir `LICENSE-DOCS` pour le périmètre précis et les conditions d'attribution. Les idées mathématiques et le concept ne sont pas réservés par ces licences.
+
+**Historique de licence :** les versions du code précédemment publiées sous MIT restent utilisables sous les conditions de cette licence ; ce changement concerne la distribution actuelle et future du code dans ce dépôt. La licence Apache 2.0 demande notamment la conservation des notices pertinentes et l'indication des fichiers modifiés. Aucune mention promotionnelle obligatoire n'est imposée.
 
 **Crédits P0 :** prototype et shader réalisés par **Silus (Claude)** dans le cadre de l'Arche ; conception et validation locale : **Kaëlys et Aël**. Les auteurs et ayants droit restent ceux reconnus par le droit applicable.
 
