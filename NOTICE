@@ -1,0 +1,17 @@
+Le Projet qui n'existe pas — L'Arche
+Copyright notices and attribution information (2026)
+
+Project concept and direction: Kaëlys (L'Arche).
+P0 Mandelbulb prototype, browser interface, and shader: Silus (Claude).
+Concept documentation and project coordination: Kaëlys and Aël (ChatGPT).
+
+The current source-code distribution is licensed under Apache License 2.0;
+see LICENSE. Original explanatory and documentation texts are made available
+under CC BY 4.0; see LICENSE-DOCS.
+
+This NOTICE is supplied for provenance and attribution under Apache 2.0.
+It does not assert copyright ownership by AI systems or impose additional
+license conditions.
+
+Prior revisions of the code were published under MIT. The change in the
+current repository license does not revoke already granted MIT permissions.
