@@ -1,0 +1,31 @@
+# Documentation license — Creative Commons Attribution 4.0 International
+
+**License:** Creative Commons Attribution 4.0 International (CC BY 4.0)  
+**SPDX identifier:** CC-BY-4.0  
+**Full legal terms:** https://creativecommons.org/licenses/by/4.0/legalcode  
+**Human-readable summary:** https://creativecommons.org/licenses/by/4.0/
+
+Unless otherwise indicated, the documentation and original editorial texts of
+**Le Projet qui n'existe pas** (L'Arche) are made available under **CC BY 4.0**,
+to the extent that applicable rights exist and are held by their contributors.
+
+This includes:
+- `README.md` and `docs/` project and science-mediation texts;
+- `FOX_NOTES.md`;
+- `experiments/p0-mandelbulb/LISEZMOI.md`;
+- the explanatory science-mediation prose in the
+  **« Comprendre (après avoir joué) »** section of
+  `experiments/p0-mandelbulb/index.html`.
+
+The remaining software source, including HTML structure, styles, JavaScript
+and GLSL shader code, is licensed under **MIT** (see `LICENSE`).
+
+**Suggested attribution:** « Le Projet qui n'existe pas — L'Arche,
+contributors; documentation under CC BY 4.0 », with a link to this repository
+and an indication of changes if applicable.
+
+Please consult the full CC BY 4.0 legal terms at the URL above; this file is a
+scope and attribution notice, not a replacement for the official legal text.
+
+Concepts and scientific/mathematical ideas as such are not licensed by these
+notices. External trademarks and third-party rights remain with their owners.
