@@ -29,7 +29,9 @@ Lire la [fiche projet 001](docs/PROJET_001_SYNTHETISEUR_GEOMETRIQUE.md).
 
 ## État d'avancement
 
-**Concept documenté + prototype P0 expérimental (Mandelbulb WebGL) ; aucune release stable ni date de sortie.**
+**Concept documenté + prototype P0 expérimental « La Cathédrale du Mandelbulb » (WebGL) ; aucune release stable ni date de sortie.**
+
+**La Cathédrale du Mandelbulb** est le nom de l'expérience P0 de Silus, et non celui du projet ou du dépôt entier.
 
 Silus a réalisé une page HTML autonome utilisant un shader WebGL en *raymarching*. Le 24 novembre 2026, Kaëlys a confirmé sur Debian que la fractale s'affichait et réagissait aux curseurs, notamment aux transformations de puissance et de phase. Le navigateur a présenté une demande d'accès MIDI ; **le véritable contrôleur AKAI MPK Mini mk3 n'a pas encore été testé**. Le rendu et les paramètres extrêmes n'ont pas fait l'objet d'un contre-audit complet.
 
