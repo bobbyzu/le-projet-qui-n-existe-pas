@@ -18,7 +18,11 @@ This includes:
   `experiments/p0-mandelbulb/index.html`.
 
 The remaining software source, including HTML structure, styles, JavaScript
-and GLSL shader code, is licensed under **MIT** (see `LICENSE`).
+and GLSL shader code, is licensed under **Apache License 2.0** (see `LICENSE`).
+
+Earlier code revisions published under MIT remain available under their
+original licensing terms; the repository's current code distribution uses
+Apache License 2.0.
 
 **Suggested attribution:** « Le Projet qui n'existe pas — L'Arche,
 contributors; documentation under CC BY 4.0 », with a link to this repository
