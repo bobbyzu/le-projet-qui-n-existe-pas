@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synthétiseur Géométrique — P0</title>
+<style>
+  :root { --bg:#07080c; --fg:#e8e6df; --dim:#8a8778; --acc:#e0a040; --panel:rgba(10,11,16,.82); }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg);
+    font:14px/1.4 ui-monospace,"DejaVu Sans Mono",monospace; overflow:hidden; }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  #panel { position:fixed; left:12px; top:12px; width:min(330px, calc(100% - 24px));
+    max-height:calc(100% - 24px); overflow:auto; background:var(--panel);
+    border:1px solid #2a2a2a; padding:12px 14px; }
+  #panel.cache > :not(header) { display:none; }
+  header { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  h1 { font-size:14px; margin:0; color:var(--acc); letter-spacing:.05em; }
+  .knob { display:grid; grid-template-columns: 1.6em 1fr 3.6em; gap:6px; align-items:center; margin:6px 0; }
+  .knob .n { color:var(--dim); }
+  .knob label { grid-column:2 / 4; font-size:12px; color:var(--dim); margin-bottom:-4px; }
+  .knob input { grid-column:2; width:100%; accent-color:var(--acc); }
+  .knob output { grid-column:3; text-align:right; }
+  .row { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  button { font:inherit; color:var(--fg); background:#15161c; border:1px solid #3a3a3a;
+    padding:4px 8px; cursor:pointer; }
+  button:hover, button:focus-visible { border-color:var(--acc); outline:none; }
+  #midi { margin-top:10px; font-size:12px; color:var(--dim); }
+  details { margin-top:10px; border-top:1px solid #2a2a2a; padding-top:8px; }
+  summary { cursor:pointer; color:var(--acc); }
+  details p { color:#cfccc2; font-size:13px; }
+  #fps { position:fixed; right:10px; bottom:8px; font-size:11px; color:var(--dim); }
+  #erreur { position:fixed; inset:0; display:none; place-items:center; padding:24px; text-align:center; }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Fractale Mandelbulb rendue en temps réel"></canvas>
+
+<section id="panel" aria-label="Console">
+  <header>
+    <h1>SYNTHÉTISEUR GÉOMÉTRIQUE · P0</h1>
+    <button id="plier" title="Masquer la console (touche H)">–</button>
+  </header>
+  <p style="margin:6px 0 2px;color:var(--dim)">Tourne un bouton. Regarde ce qui se passe.</p>
+  <div id="knobs"></div>
+  <div class="row">
+    <button id="reset" title="Touche R">Remise à zéro</button>
+    <button id="pause" title="Touche Espace">Figer</button>
+    <button id="plein" title="Touche F">Plein écran</button>
+  </div>
+  <div id="midi">MIDI : recherche…</div>
+  <details>
+    <summary>Comprendre (après avoir joué)</summary>
+    <p>Tu viens de jouer avec un <b>Mandelbulb</b>, une fractale en trois dimensions découverte en 2009 par Daniel White et Paul Nylander.</p>
+    <p>La règle tient en une ligne : on prend un point, on l'élève à une <b>puissance</b> (bouton 1) en coordonnées sphériques, on ajoute le point de départ, et on recommence. Si le point s'échappe vers l'infini, il est dehors ; s'il reste, il fait partie de la forme.</p>
+    <p>Les <b>itérations</b> (bouton 2) comptent combien de fois on répète la règle : plus on répète, plus les détails apparaissent. C'est ça, une fractale : une règle simple répétée qui engendre une complexité sans fin.</p>
+    <p>La <b>phase</b> (bouton 8) fait tourner un angle à l'intérieur de la règle elle-même : la forme ne tourne pas, elle se transforme.</p>
+    <p>Ce que tu vois est calculé, pas filmé : chaque pixel est obtenu en lançant un rayon et en mesurant, à chaque pas, la distance qui le sépare de la fractale (<i>ray marching</i>).</p>
+  </details>
+</section>
+<div id="fps"></div>
+<div id="erreur"><p>WebGL n'est pas disponible dans ce navigateur.<br>Le synthétiseur n'existe donc toujours pas. 🦊</p></div>
+
+<script>
+"use strict";
+// ---- Les 8 boutons : MPK Mini mk3 (CC 70 à 77 par défaut) ou curseurs ----
+const P = [
+  { id:"power", nom:"Puissance",           min:2,    max:12,   def:8,    pas:.01 },
+  { id:"iter",  nom:"Itérations",          min:2,    max:16,   def:10,   pas:1   },
+  { id:"rotx",  nom:"Inclinaison",         min:-1.5, max:1.5,  def:.35,  pas:.01 },
+  { id:"roty",  nom:"Rotation",            min:-3.14,max:3.14, def:.6,   pas:.01 },
+  { id:"dist",  nom:"Distance",            min:1.3,  max:4.5,  def:2.6,  pas:.01 },
+  { id:"hue",   nom:"Couleur",             min:0,    max:1,    def:.08,  pas:.005 },
+  { id:"det",   nom:"Finesse",             min:0,    max:1,    def:.5,   pas:.01 },
+  { id:"phase", nom:"Phase (morphose)",    min:-3.14,max:3.14, def:0,    pas:.01 },
+];
+const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cible = {}, val = {};
+const knobsEl = document.getElementById("knobs");
+P.forEach((p, i) => {
+  cible[p.id] = val[p.id] = p.def;
+  const d = document.createElement("div"); d.className = "knob";
+  d.innerHTML = `<span class="n">${i+1}</span><label for="k_${p.id}">${p.nom}</label>
+    <input type="range" id="k_${p.id}" min="${p.min}" max="${p.max}" step="${p.pas}" value="${p.def}">
+    <output id="o_${p.id}"></output>`;
+  knobsEl.appendChild(d);
+  d.querySelector("input").addEventListener("input", e => { cible[p.id] = +e.target.value; majUI(p.id); reveil(); });
+});
+function majUI(id) {
+  const p = P.find(q => q.id === id);
+  document.getElementById("k_" + id).value = cible[id];
+  document.getElementById("o_" + id).textContent = (p.pas >= 1 ? Math.round(cible[id]) : cible[id].toFixed(2));
+}
+P.forEach(p => majUI(p.id));
+
+let anime = !reduit;           // rotation lente automatique
+const pauseBtn = document.getElementById("pause");
+function majPause(){ pauseBtn.textContent = anime ? "Figer" : "Animer"; }
+majPause();
+pauseBtn.onclick = () => { anime = !anime; majPause(); reveil(); };
+document.getElementById("reset").onclick = () => { P.forEach(p => { cible[p.id] = p.def; majUI(p.id); }); reveil(); };
+document.getElementById("plein").onclick = () =>
+  document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+const panel = document.getElementById("panel");
+document.getElementById("plier").onclick = () => {
+  panel.classList.toggle("cache");
+  document.getElementById("plier").textContent = panel.classList.contains("cache") ? "+" : "–";
+};
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" && e.key !== " ") return;
+  if (e.key === "r" || e.key === "R") document.getElementById("reset").click();
+  else if (e.key === " ") { e.preventDefault(); pauseBtn.click(); }
+  else if (e.key === "f" || e.key === "F") document.getElementById("plein").click();
+  else if (e.key === "h" || e.key === "H") document.getElementById("plier").click();
+});
+
+// ---- MIDI : CC 70–77 = boutons 1–8 (MPK Mini mk3) ; un autre CC est appris dans l'ordre ----
+const midiEl = document.getElementById("midi");
+const ccMap = {}; [70,71,72,73,74,75,76,77].forEach((cc, i) => ccMap[cc] = i);
+let prochain = 0;
+function onMidi(m) {
+  const [st, a, b] = m.data, type = st & 0xf0;
+  if (type === 0xb0) {                       // Control Change
+    if (!(a in ccMap)) {                     // autre contrôleur : boutons appris dans l'ordre où on les tourne
+      if (Object.keys(ccMap).length >= 32) return;
+      ccMap[a] = prochain++ % 8;
+    }
+    const p = P[ccMap[a]];
+    let v = p.min + (b / 127) * (p.max - p.min);
+    if (p.pas >= 1) v = Math.round(v);
+    cible[p.id] = v; majUI(p.id); reveil();
+    midiEl.textContent = `MIDI : CC ${a} → ${p.nom}`;
+  } else if (type === 0x90 && b > 0) {      // pads : 1re note = remise à zéro, 2e = figer
+    if (a === 36) document.getElementById("reset").click();
+    if (a === 37) pauseBtn.click();
+  }
+}
+if (navigator.requestMIDIAccess) {
+  navigator.requestMIDIAccess().then(acc => {
+    const brancher = () => {
+      const noms = [];
+      acc.inputs.forEach(inp => { inp.onmidimessage = onMidi; noms.push(inp.name); });
+      midiEl.textContent = noms.length ? "MIDI : " + noms.join(", ") : "MIDI : aucun contrôleur branché (les curseurs marchent).";
+    };
+    brancher(); acc.onstatechange = brancher;
+  }, () => { midiEl.textContent = "MIDI refusé ou indisponible : les curseurs marchent."; });
+} else {
+  midiEl.textContent = "Ce navigateur ne gère pas WebMIDI : les curseurs marchent.";
+}
+
+// ---- WebGL : Mandelbulb en ray marching ----
+const cv = document.getElementById("c");
+const gl = cv.getContext("webgl", { antialias:false, preserveDrawingBuffer:false });
+if (!gl) { document.getElementById("erreur").style.display = "grid"; throw new Error("pas de WebGL"); }
+
+const VS = `attribute vec2 a; void main(){ gl_Position = vec4(a,0.,1.); }`;
+const FS = `
+precision highp float;
+uniform vec2 uRes;
+uniform float uPower, uIter, uRotX, uRotY, uDist, uHue, uDet, uPhase;
+
+float DE(vec3 p, out float trap) {
+  vec3 z = p; float dr = 1.0, r = 0.0; trap = 1e9;
+  for (int i = 0; i < 16; i++) {
+    if (float(i) >= uIter) break;
+    r = length(z);
+    if (r > 2.0) break;
+    float th = acos(clamp(z.z / max(r, 1e-6), -1.0, 1.0));
+    float ph = atan(z.y, z.x);
+    dr = pow(r, uPower - 1.0) * uPower * dr + 1.0;
+    float zr = pow(r, uPower);
+    th *= uPower; ph = ph * uPower + uPhase;
+    z = zr * vec3(sin(th) * cos(ph), sin(th) * sin(ph), cos(th)) + p;
+    trap = min(trap, dot(z, z));
+  }
+  r = max(r, 1e-6);
+  return 0.5 * log(r) * r / dr;
+}
+float DE(vec3 p) { float t; return DE(p, t); }
+
+vec3 hsv(float h, float s, float v) {
+  vec3 k = clamp(abs(mod(h * 6.0 + vec3(0., 4., 2.), 6.0) - 3.0) - 1.0, 0., 1.);
+  return v * mix(vec3(1.), k, s);
+}
+mat3 rot(float ax, float ay) {
+  float cx = cos(ax), sx = sin(ax), cy = cos(ay), sy = sin(ay);
+  mat3 rx = mat3(1.,0.,0., 0.,cx,sx, 0.,-sx,cx);
+  mat3 ry = mat3(cy,0.,-sy, 0.,1.,0., sy,0.,cy);
+  return ry * rx;
+}
+void main() {
+  vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  mat3 R = rot(uRotX, uRotY);
+  vec3 ro = R * vec3(0., 0., -uDist);
+  vec3 rd = R * normalize(vec3(uv, 1.6));
+  vec3 bg = mix(vec3(.02,.02,.035), vec3(.07,.06,.09), uv.y * .5 + .5);
+
+  // sphère englobante de rayon 1.25
+  float b = dot(ro, rd), c = dot(ro, ro) - 1.5625, h = b * b - c;
+  if (h < 0.0) { gl_FragColor = vec4(bg, 1.); return; }
+  float t = max(0.0, -b - sqrt(h)), tmax = -b + sqrt(h);
+
+  float eps = mix(0.004, 0.0004, uDet);
+  float trap = 0.0; int steps = 0; bool hit = false;
+  for (int i = 0; i < 200; i++) {
+    vec3 p = ro + rd * t;
+    float d = DE(p, trap);
+    if (d < eps * t) { hit = true; break; }
+    t += d * 0.9;
+    steps = i;
+    if (t > tmax) break;
+  }
+  if (!hit) { gl_FragColor = vec4(bg, 1.); return; }
+
+  vec3 p = ro + rd * t;
+  vec2 e = vec2(eps * t, 0.);
+  vec3 n = normalize(vec3(DE(p + e.xyy) - DE(p - e.xyy),
+                          DE(p + e.yxy) - DE(p - e.yxy),
+                          DE(p + e.yyx) - DE(p - e.yyx)));
+  vec3 L = normalize(R * vec3(.6, .8, -.5));
+  float dif = max(dot(n, L), 0.0);
+  float ao = 1.0 - float(steps) / 200.0;
+  float rim = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+  vec3 base = hsv(uHue + sqrt(trap) * .25, .65, 1.0);
+  vec3 col = base * (.15 + .85 * dif) * ao + rim * .25 * hsv(uHue + .5, .4, 1.);
+  col = mix(col, bg, 1.0 - exp(-.08 * t * t));
+  gl_FragColor = vec4(pow(col, vec3(.4545)), 1.);
+}`;
+function sh(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog); gl.useProgram(prog);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+const loc = gl.getAttribLocation(prog, "a");
+gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+const U = {};
+["uRes","uPower","uIter","uRotX","uRotY","uDist","uHue","uDet","uPhase"].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+// Résolution adaptative : baisse si l'image est lente, remonte si elle est rapide.
+let echelle = 0.6, dernier = performance.now(), spin = 0, fpsMoy = 30, enCours = false;
+function taille() {
+  const w = Math.max(1, Math.floor(innerWidth * devicePixelRatio * echelle));
+  const h = Math.max(1, Math.floor(innerHeight * devicePixelRatio * echelle));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
+}
+addEventListener("resize", reveil);
+function reveil() { if (!enCours) { enCours = true; dernier = performance.now(); requestAnimationFrame(image); } }
+
+function image(now) {
+  const dt = Math.min(.1, (now - dernier) / 1000); dernier = now;
+  let bouge = anime;
+  for (const p of P) {                       // lissage des boutons
+    const d = cible[p.id] - val[p.id];
+    if (Math.abs(d) > 1e-4) { val[p.id] += d * Math.min(1, dt * 10); bouge = true; } else val[p.id] = cible[p.id];
+  }
+  if (anime) spin += dt * .15;
+  taille();
+  gl.uniform2f(U.uRes, cv.width, cv.height);
+  gl.uniform1f(U.uPower, val.power);
+  gl.uniform1f(U.uIter, Math.round(val.iter));
+  gl.uniform1f(U.uRotX, val.rotx);
+  gl.uniform1f(U.uRotY, val.roty + spin);
+  gl.uniform1f(U.uDist, val.dist);
+  gl.uniform1f(U.uHue, val.hue);
+  gl.uniform1f(U.uDet, val.det);
+  gl.uniform1f(U.uPhase, val.phase);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  if (dt > 0) fpsMoy = fpsMoy * .9 + (1 / dt) * .1;
+  if (fpsMoy < 24 && echelle > .25) echelle = Math.max(.25, echelle - .02);
+  else if (fpsMoy > 50 && echelle < 1) echelle = Math.min(1, echelle + .01);
+  document.getElementById("fps").textContent = `${fpsMoy.toFixed(0)} i/s · résolution ${(echelle*100).toFixed(0)} %`;
+
+  if (bouge) requestAnimationFrame(image); else enCours = false;   // au repos : la carte graphique se repose aussi
+}
+reveil();
+</script>
+</body>
+</html>
