@@ -1,4 +1,6 @@
-# Synthétiseur Géométrique — P0
+# La Cathédrale du Mandelbulb — P0
+
+*Première expérience du Synthétiseur Géométrique, dans « Le Projet qui n'existe pas ».*
 
 Une seule page, sans dépendance ni réseau : `index.html`.
 Elle affiche un Mandelbulb calculé en temps réel (*ray marching* en WebGL).
