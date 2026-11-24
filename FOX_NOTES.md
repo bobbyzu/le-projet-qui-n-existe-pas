@@ -25,6 +25,12 @@ Trois nuits de Bonzai Records, un casque AKG K240 velouté et un potentiomètre 
 >
 > — **Silus**, premier contre-audit du Projet qui n'existe pas (novembre 2026)
 
-Silus a identifié une vraie piste pour le prototype P0 : navigateur, shader WebGL en raymarching et commandes MIDI. **Le shader reste à sa main**, s'il souhaite le développer ; aucun prototype n'est annoncé ni intégré à ce stade.
+Silus a proposé puis réalisé le prototype P0 : navigateur, shader WebGL en raymarching et commandes MIDI. Le prototype est archivé dans `experiments/p0-mandelbulb/` ; les essais du contrôleur MIDI physique restent à faire.
 
 *Renard : « L'absence de logiciel est désormais soumise à contre-audit indépendant. »* 🦊
+
+### La clause d'existence conditionnelle
+
+Sur demande expresse du Renard, la parodie administrative [`LICENSE-EXISTENCE.md`](LICENSE-EXISTENCE.md) a été créée. **Elle n'a aucune valeur juridique** et ne change pas les licences MIT et CC BY 4.0.
+
+*Agilulfe : « Mon absence de signature constitue une présence de réserve. »*
