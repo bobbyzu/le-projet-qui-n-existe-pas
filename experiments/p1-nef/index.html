@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Nef Mandelbox</title>
+<link rel="icon" href="data:,">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #101417; color: #f2e9dc; font: 16px system-ui, sans-serif; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; }
+  canvas:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #ffd299; outline-offset: 3px; }
+  canvas:focus-visible { outline-offset: -5px; }
+  section { position: fixed; bottom: 0; left: 0; margin: .7rem; padding: .85rem 1rem; width: fit-content; max-width: min(23rem, calc(100% - 1.4rem)); background: #181c1f; border: 1px solid #796955; border-radius: .45rem; }
+  h1 { font: 1.55rem Georgia, serif; margin: 0 0 .6rem; }
+  p { margin: .4rem 0; }
+  button { font: inherit; color: inherit; background: #34312c; border: 1px solid #9b8263; border-radius: .25rem; padding: .3rem .55rem; }
+  button:disabled { opacity: .55; }
+  details { margin: .4rem 0; }
+  #metrics { font-variant-numeric: tabular-nums; }
+  #status { max-width: 35ch; }
+</style>
+<canvas id="view" tabindex="0" aria-label="Vue de la nef. Placez le focus ici pour naviguer." aria-describedby="help"></canvas>
+<section aria-labelledby="title">
+  <h1 id="title">La Nef Mandelbox</h1>
+    <p id="help">↑ ↓ Avancer / reculer · ← → Tourner</p>
+  <details>
+    <summary>Autres touches</summary>
+    <p>Cliquez sur la vue ou sélectionnez-la avec Tab.<br>
+    Q / E physiques (A / E en AZERTY) · Regarder haut / bas<br>
+    W A S D physiques (Z Q S D en AZERTY) · Navigation<br>
+    X / P / R physiques · Stop / Pause / Retour</p>
+  </details>
+  <button id="stop" type="button">Stop</button>
+  <button id="pause" type="button" aria-pressed="false">Pause</button>
+  <button id="reset" type="button">Retour départ</button>
+  <p><label><input id="fixed" type="checkbox"> Résolution fixe à 50 %</label></p>
+  <p id="metrics">— i/s · résolution —</p>
+  <p id="status" role="status"></p>
+  <noscript>Cette scène nécessite JavaScript.</noscript>
+</section>
+<script type="module" src="./app.mjs"></script>
+</html>
